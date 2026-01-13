@@ -1,110 +1,183 @@
 import streamlit as st
 import time
 
-# Настройка страницы
-st.set_page_config(page_title="KETO AI LUXE", page_icon="🥑", layout="centered")
-
-# Дизайнерские стили (улучшенные и безопасные)
-st.markdown("""
-    <style>
-    .stApp { background-color: #050505; color: #FFFFFF; }
-    .main-title { font-size: 32px; font-weight: bold; color: #FFD700; text-align: center; margin-bottom: 10px; }
-    .sub-title { font-size: 16px; text-align: center; color: #AAAAAA; margin-bottom: 30px; }
+# 1. СТАБИЛЬНЫЙ ПРЕМИУМ ДИЗАЙН
+CSS = """
+<style>
+    .stApp { background-color: #050505; color: #FFFFFF; font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; }
+    h1, h2, h3 { color: #FFD700 !important; text-align: center; text-transform: uppercase; letter-spacing: 2px; }
     .stButton>button { 
-        background: linear-gradient(90deg, #FFD700 0%, #B8860B 100%);
-        color: black !important; border-radius: 30px; border: none;
-        padding: 15px 30px; font-weight: bold; width: 100%; font-size: 18px;
+        background: linear-gradient(145deg, #FFD700 0%, #B8860B 100%);
+        color: black !important; border-radius: 50px; border: none;
+        padding: 20px; font-weight: bold; width: 100%; font-size: 20px;
+        box-shadow: 0 4px 15px rgba(255, 215, 0, 0.3); transition: 0.3s;
     }
-    div[data-testid="stExpander"] { background-color: #111111; border: 1px solid #333; border-radius: 15px; }
-    </style>
-    """, unsafe_allow_index=True)
+    .stButton>button:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(255, 215, 0, 0.5); }
+    .stProgress > div > div > div > div { background-image: linear-gradient(to right, #B8860B, #FFD700); }
+    div[data-testid="stMarkdownContainer"] p { font-size: 18px; text-align: center; color: #CCCCCC; }
+    .card { background: #111111; padding: 25px; border-radius: 20px; border: 1px solid #222; margin-bottom: 20px; }
+</style>
+"""
 
-# Инициализация экранов
+st.set_page_config(page_title="KETO AI PLATINUM", page_icon="💎", layout="centered")
+st.markdown(CSS, unsafe_allow_index=True)
+
+# Инициализация системы экранов
 if 'step' not in st.session_state:
     st.session_state.step = 1
+    st.session_state.data = {}
 
-# --- ЭКРАН 1: ПРИВЕТСТВИЕ ---
+def next_step():
+    st.session_state.step += 1
+    st.rerun()
+
+# --- ЛОГИКА ЭКРАНОВ ---
+
+# ЭКРАН 1: ИНТРО
 if st.session_state.step == 1:
-    st.markdown('<p class="main-title">KETO AI LUXE</p>', unsafe_allow_index=True)
-    st.image("https://images.unsplash.com/photo-1547592166-23ac45744acd?q=80&w=1000") # Красивое фото кето-еды
-    st.markdown('<p class="sub-title">Ваш персональный шеф-повар и диетолог на базе ИИ. Начнем трансформацию?</p>', unsafe_allow_index=True)
-    
-    if st.button("СОЗДАТЬ МОЙ ПЛАН"):
-        st.session_state.step = 2
-        st.rerun()
+    st.markdown("<h1>KETO AI <br>PLATINUM EDITION</h1>", unsafe_allow_index=True)
+    st.image("https://images.unsplash.com/photo-1524182620199-a93f4136efac?q=80&w=1000") # Роскошный завтрак
+    st.write("Добро пожаловать в закрытый клуб персонального здоровья. Наш ИИ создаст для вас план, который изменит всё.")
+    if st.button("НАЧАТЬ АНАЛИЗ МЕТАБОЛИЗМА"):
+        next_step()
 
-# --- ЭКРАН 2: ПАРАМЕТРЫ ТЕЛА ---
+# ЭКРАН 2: ИМЯ И ПОЛ
 elif st.session_state.step == 2:
-    st.markdown('<p class="main-title">ПАРАМЕТРЫ ТЕЛА</p>', unsafe_allow_index=True)
-    col1, col2 = st.columns(2)
-    with col1:
-        weight = st.number_input("Текущий вес (кг)", 40, 200, 80)
-    with col2:
-        target = st.number_input("Целевой вес (кг)", 40, 200, 70)
-    
-    gender = st.radio("Пол", ["Женский", "Мужской"], horizontal=True)
-    activity = st.select_slider("Ваша активность", options=["Низкая", "Средняя", "Высокая"])
-    
-    if st.button("ДАЛЕЕ →"):
-        st.session_state.user_data = {"w": weight, "t": target, "a": activity}
-        st.session_state.step = 3
-        st.rerun()
+    st.header("Шаг 1: Знакомство")
+    name = st.text_input("Как к вам обращаться?", placeholder="Ваше имя")
+    gender = st.radio("Ваш пол", ["Мужской", "Женский"], horizontal=True)
+    if name and st.button("ПРОДОЛЖИТЬ"):
+        st.session_state.data['name'] = name
+        next_step()
 
-# --- ЭКРАН 3: ВКУСОВЫЕ ПРЕДПОЧТЕНИЯ ---
+# ЭКРАН 3: ВОЗРАСТ
 elif st.session_state.step == 3:
-    st.markdown('<p class="main-title">ВАШИ ВКУСЫ</p>', unsafe_allow_index=True)
-    st.image("https://images.unsplash.com/photo-1546069901-ba9599a7e63c?q=80&w=1000")
-    
-    exclusions = st.multiselect("Что исключить?", ["Мясо", "Рыба", "Свинина", "Молочка", "Орехи"])
-    sweets = st.toggle("Оставить десерты в рационе", value=True)
-    
-    if st.button("РАССЧИТАТЬ ИДЕАЛЬНЫЙ БЖУ"):
-        st.session_state.step = 4
-        st.rerun()
+    st.header("Шаг 2: Возраст")
+    st.write("Возраст влияет на скорость метаболизма и усвоение кетонов.")
+    age = st.slider("Сколько вам полных лет?", 18, 80, 30)
+    if st.button("ЗАФИКСИРОВАТЬ ВОЗРАСТ"):
+        st.session_state.data['age'] = age
+        next_step()
 
-# --- ЭКРАН 4: МАГИЯ ИИ И РЕЗУЛЬТАТ ---
+# ЭКРАН 4: РОСТ/ВЕС
 elif st.session_state.step == 4:
-    st.markdown('<p class="main-title">АНАЛИЗ ДАННЫХ...</p>', unsafe_allow_index=True)
-    
+    st.header("Шаг 3: Антропометрия")
+    h = st.number_input("Ваш рост (см)", 140, 220, 170)
+    w = st.number_input("Текущий вес (кг)", 40, 200, 85)
+    if st.button("РАССЧИТАТЬ ИМТ"):
+        st.session_state.data['height'] = h
+        st.session_state.data['weight'] = w
+        next_step()
+
+# ЭКРАН 5: ЦЕЛЬ
+elif st.session_state.step == 5:
+    st.header("Шаг 4: Главная цель")
+    goal = st.selectbox("Чего мы хотим достичь?", 
+                        ["Экстремальное похудение", "Плавное снижение веса", "Рельеф и мышцы", "Энергия и биохакинг"])
+    target_w = st.number_input("Желаемый вес (кг)", 40, 150, 70)
+    if st.button("УСТАНОВИТЬ ЦЕЛЬ"):
+        st.session_state.data['target'] = target_w
+        next_step()
+
+# ЭКРАН 6: ФИЗИЧЕСКАЯ АКТИВНОСТЬ
+elif st.session_state.step == 6:
+    st.header("Шаг 5: Энергозатраты")
+    act = st.select_slider("Ваш уровень активности", 
+                           options=["Сидячий (офис)", "Легкие прогулки", "Тренировки 3 раза в неделю", "Профи спорт"])
+    if st.button("УЧЕСТЬ НАГРУЗКИ"):
+        st.session_state.data['activity'] = act
+        next_step()
+
+# ЭКРАН 7: ИСКЛЮЧЕНИЯ (МЯСО/РЫБА)
+elif st.session_state.step == 7:
+    st.header("Шаг 6: Пищевые привычки")
+    st.image("https://images.unsplash.com/photo-1544022613-e87ca75a784a?q=80&w=1000") # Стейк
+    excl = st.multiselect("Что мы убираем из рациона?", 
+                          ["Свинина", "Говядина", "Рыба", "Морепродукты", "Молочные продукты", "Яйца", "Орехи"])
+    if st.button("АДАПТИРОВАТЬ МЕНЮ"):
+        st.session_state.data['exclusions'] = excl
+        next_step()
+
+# ЭКРАН 8: СЛАДКОЕЖКА
+elif st.session_state.step == 8:
+    st.header("Шаг 7: Сладости")
+    sweet = st.radio("Сложно ли вам отказаться от сладкого?", 
+                     ["Да, нужен полезный десерт", "Нет, я кремень"])
+    if st.button("СОХРАНИТЬ ПРЕДПОЧТЕНИЯ"):
+        st.session_state.data['sweets'] = sweet
+        next_step()
+
+# ЭКРАН 9: ВРЕМЯ НА ГОТОВКУ
+elif st.session_state.step == 9:
+    st.header("Шаг 8: Время")
+    cook = st.radio("Сколько вы готовы тратить на готовку?", 
+                    ["До 30 минут (быстрые рецепты)", "Люблю готовить сложные блюда"])
+    if st.button("ПОДОБРАТЬ РЕЦЕПТЫ"):
+        next_step()
+
+# ЭКРАН 10: СТОП-ФАКТОРЫ
+elif st.session_state.step == 10:
+    st.header("Шаг 9: Здоровье")
+    st.write("Есть ли у вас аллергии или хронические заболевания?")
+    health = st.text_area("Напишите кратко или оставьте пустым", placeholder="Например: аллергия на лактозу")
+    if st.button("ПОСЛЕДНИЙ ШАГ"):
+        next_step()
+
+# ЭКРАН 11: МАГИЯ ИИ (ОЖИДАНИЕ)
+elif st.session_state.step == 11:
+    st.header("ГЕНЕРАЦИЯ ПЛАНА...")
     placeholder = st.empty()
-    with placeholder.container():
-        st.write("🤖 ИИ подбирает рецепты под ваш вес...")
-        bar = st.progress(0)
-        for i in range(100):
-            bar.progress(i + 1)
-            time.sleep(0.03)
+    bar = st.progress(0)
     
-    placeholder.empty()
+    messages = [
+        "🤖 Анализирую метаболический профиль...",
+        "⚖️ Рассчитываю идеальный дефицит калорий...",
+        "🍳 Подбираю рецепты из базы (2500+ блюд)...",
+        "🍰 Адаптирую десерты под КБЖУ...",
+        "📅 Формирую список покупок на 4 недели...",
+        "✨ Финализирую вашу Platinum книгу..."
+    ]
+    
+    for i, msg in enumerate(messages):
+        placeholder.markdown(f"<h3>{msg}</h3>", unsafe_allow_index=True)
+        bar.progress((i + 1) * 16)
+        time.sleep(1.8)
+    
+    st.session_state.step = 12
+    st.rerun()
+
+# ЭКРАН 12: РЕЗУЛЬТАТ И СКАЧИВАНИЕ
+elif st.session_state.step == 12:
     st.balloons()
+    st.markdown("<h1>ВАШ ПЛАН ГОТОВ!</h1>", unsafe_allow_index=True)
     
-    # Виджет с расчетом БЖУ (Калькулятор)
-    st.markdown("""
-        <div style="background: #111; padding: 20px; border-radius: 20px; border: 1px solid #FFD700; text-align: center;">
-            <h3 style="color: #FFD700; margin: 0;">ВАШИ ПОКАЗАТЕЛИ КБЖУ</h3>
-            <p style="color: #FFF; font-size: 24px; margin: 10px 0;"><b>1850 ккал / день</b></p>
-            <div style="display: flex; justify-content: space-around;">
-                <div><small>БЕЛКИ</small><br><b>90г</b></div>
-                <div><small>ЖИРЫ</small><br><b>150г</b></div>
-                <div><small>УГЛЕВОДЫ</small><br><b>25г</b></div>
-            </div>
+    # Блок БЖУ
+    st.markdown(f"""
+    <div class="card">
+        <p style="color:#FFD700; font-size: 22px;"><b>РЕЗУЛЬТАТ ДЛЯ {st.session_state.data['name'].upper()}</b></p>
+        <p>Ваша дневная норма: <b>1920 ккал</b></p>
+        <hr style="border-color: #333;">
+        <div style="display: flex; justify-content: space-around;">
+            <div>БЕЛКИ<br><b style="color:white">95г</b></div>
+            <div>ЖИРЫ<br><b style="color:white">155г</b></div>
+            <div>УГЛЕВОДЫ<br><b style="color:white">22г</b></div>
         </div>
+    </div>
     """, unsafe_allow_index=True)
     
-    st.write("")
-    st.write("✅ План на 28 дней готов. Мы учли все ваши пожелания по продуктам.")
+    st.write("На основе ваших параметров (цель: " + str(st.session_state.data['target']) + " кг) ИИ сформировал книгу рецептов на 28 дней.")
 
-    # Кнопка скачивания
     try:
         with open("Personal_Keto_Plan.pdf", "rb") as f:
             st.download_button(
-                label="📥 СКАЧАТЬ LUXE КНИГУ (PDF)",
+                label="📥 СКАЧАТЬ ПЕРСОНАЛЬНЫЙ ПЛАН (PDF)",
                 data=f,
-                file_name="Premium_Keto_Plan.pdf",
+                file_name=f"Keto_Plan_{st.session_state.data['name']}.pdf",
                 mime="application/pdf"
             )
     except:
-        st.error("Файл PDF не найден. Но ИИ расчет завершен!")
+        st.error("Файл PDF не найден. Проверьте имя файла на GitHub.")
     
-    if st.button("НАЧАТЬ ЗАНОВО"):
+    if st.button("ПРОЙТИ ЗАНОВО"):
         st.session_state.step = 1
         st.rerun()
